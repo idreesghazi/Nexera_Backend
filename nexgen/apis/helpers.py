@@ -128,7 +128,8 @@ def get_query_results(query: str) -> str:
         ),
     )
     res = grag.query(query, QueryParam(with_references=True))
-    return res 
+
+    return res.response  
 
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
@@ -266,4 +267,4 @@ def generate_title(message: str) -> str:
         "user_message": message,
         "system_message": system_message
     })
-    return response.content
+    return response.content, system_message

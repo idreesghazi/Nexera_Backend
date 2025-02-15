@@ -73,17 +73,20 @@ class GraphQueryViewSet(viewsets.ViewSet):
         query = request.data.get('Query')
         if not query:
             return Response({"error": "Query is required"}, status=400)
+        
+        results = None
         if not chat_id:
-            chat = models.Chat.objects.create(Title = generate_title(request.data.get('Query')))
+            title, results = generate_title(message = query)
+            chat = models.Chat.objects.create(Title = title)
             chat_id = chat.ChatID
-        results = get_query_results(query)
+        results = get_query_results(query) if results is None else results
 
         if chat_id:
             models.ChatMessage.objects.create(ChatID_id=chat_id, Message=query, HumanFlag=True)
             models.ChatMessage.objects.create(ChatID_id=chat_id, Message=results, HumanFlag=False)
 
 
-        return Response({"results": results.response, "chat_id": chat_id})
+        return Response({"results": results, "chat_id": chat_id})
     
 
 class TextDocumentGenerationViewSet(viewsets.ViewSet):

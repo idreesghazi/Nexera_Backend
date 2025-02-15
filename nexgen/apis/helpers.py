@@ -114,8 +114,11 @@ def generate_graph():
 def get_conversation_history(chat_id) -> str:
     chat_messages = models.ChatMessage.objects.filter(ChatID_id=chat_id).order_by('-ChatMessageID')[:10]
     conversation = ""
+    system_message = """
+    System: Your answer should be relevant to the user's input. Keep it concise and to the point.\n
+    """
     for message in chat_messages:
-        conversation += f"{'User: ' if message.HumanFlag else 'System: '}{message.Message}\n"
+        conversation += f"{system_message}{'User: ' if message.HumanFlag else 'System: '}{message.Message}\n"
     return conversation
 
 def get_query_results(query: str, chat_id = None) -> str:
@@ -141,7 +144,7 @@ def get_query_results(query: str, chat_id = None) -> str:
             ),
         ),
     )
-    res = grag.query(query, QueryParam(with_references=True))
+    res = grag.query(query)
 
     return res.response  
 
@@ -166,13 +169,14 @@ def tax_report_generation(data):
 
     User-Provided Data:
     1️ Personal & Business Information:
-
+    
     Full Name: {user_name}
     CNIC or NTN: {cnic}
     Taxpayer Category: {category} (e.g., Individual, Business, Freelancer)
     Business Name (if applicable): {business_name}
     Business Registration Details: {registration_details}
     Filer Status: {active_filer} (Yes/No)
+    
     2️ Income Sources:
 
     Salary Income: {salary}
@@ -274,7 +278,12 @@ def generate_title(message: str) -> str:
     System: {system_message}
     """
     prompt_template = PromptTemplate(template=system_template, input_variables=["user_message", "system_message"])
-    system_message = get_query_results(message)
+    system_message = """
+    System: Your answer should be relevant to the user's input. Keep it concise and to the point.\n
+    User:
+    """
+    print(system_message+message)
+    system_message = get_query_results(system_message + message)
 
     chain = prompt_template | llm
     response = chain.invoke({
@@ -286,7 +295,7 @@ def generate_title(message: str) -> str:
 
 def get_speech_to_text(file_path: str) -> str:
     audio_file = open(file_path, "rb")
-    transcription = client.audio.transcriptions.create(
+    transcription = client.audio.translations.create(
         model="whisper-1", 
         file=audio_file
     )
@@ -325,7 +334,7 @@ def get_answer_from_pdf(file_path: str, chat_id, query: str) -> str:
     )
     if not os.listdir(working_dir):
         grag.insert(embed_pdf_runtime(file_path, chat_id))
-    res = grag.query(query, QueryParam(with_references=True))
+    res = grag.query(query)
     return res.response
 
 def embed_pdf_runtime(file_path: str, chat_id: int) -> str:

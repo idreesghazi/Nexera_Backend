@@ -17,6 +17,9 @@ from langchain_community.vectorstores import FAISS
 import glob
 import PyPDF2
 
+from openai import OpenAI
+client = OpenAI()
+
 llm = ChatOpenAI(
     model="gpt-4o-mini",
 )
@@ -279,3 +282,14 @@ def generate_title(message: str) -> str:
         "system_message": system_message
     })
     return response.content, system_message
+
+
+def get_speech_to_text(file_path: str) -> str:
+    audio_file = open(file_path, "rb")
+    transcription = client.audio.transcriptions.create(
+        model="whisper-1", 
+        file=audio_file
+    )
+
+    print(transcription.text)
+    return transcription.text

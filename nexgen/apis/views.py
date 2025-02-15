@@ -10,6 +10,7 @@ from nexgen.apis.helpers import (
     get_query_results,
     tax_report_generation,
     generate_title,
+    get_speech_to_text,
 )
 # Create your views here.
 
@@ -71,6 +72,11 @@ class GraphQueryViewSet(viewsets.ViewSet):
     def create(self, request):
         chat_id = request.data.get('ChatID')
         query = request.data.get('Query')
+        print(request.data)
+        if (request.data.get("AudioFlag")):
+            print("Audio Flag is True")
+            query = get_speech_to_text(request.data.get("AudioFile"))
+
         if not query:
             return Response({"error": "Query is required"}, status=400)
         

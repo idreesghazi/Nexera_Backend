@@ -293,3 +293,59 @@ def get_speech_to_text(file_path: str) -> str:
 
     print(transcription.text)
     return transcription.text
+
+def extract_text_from_pdf(file_path: str) -> str:
+    with open(file_path, 'rb') as file:
+        reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page_num in range(len(reader.pages)):
+            page = reader.pages[page_num]
+            text += page.extract_text() + "\n"
+    print(text)
+    return text
+
+
+def get_answer_from_pdf(file_path: str, chat_id, query: str) -> str:
+    working_dir = f"./chat{chat_id}"
+    DOMAIN, QUERIES, ENTITY_TYPES = models.GraphData.objects.all().values_list('DOMAIN', 'QUERIES', 'ENTITY_TYPES')[0]
+    grag = GraphRAG(
+        working_dir=working_dir,
+        domain=DOMAIN,
+        example_queries="\n".join(QUERIES),
+        entity_types=ENTITY_TYPES,
+        config=GraphRAG.Config(
+            llm_service=OpenAILLMService(
+                api_key=os.getenv("OPENAI_API_KEY"),
+            ),
+            embedding_service=OpenAIEmbeddingService(
+                model="text-embedding-3-small",
+                api_key=os.getenv("OPENAI_API_KEY"),
+            ),
+        ),
+    )
+    if not os.listdir(working_dir):
+        grag.insert(embed_pdf_runtime(file_path, chat_id))
+    res = grag.query(query, QueryParam(with_references=True))
+    return res.response
+
+def embed_pdf_runtime(file_path: str, chat_id: int) -> str:
+    text = extract_text_from_pdf(file_path)
+    working_dir = f"./chat{chat_id}"
+    DOMAIN, QUERIES, ENTITY_TYPES = models.GraphData.objects.all().values_list('DOMAIN', 'QUERIES', 'ENTITY_TYPES')[0]
+    grag = GraphRAG(
+        working_dir=working_dir,
+        domain=DOMAIN,
+        example_queries="\n".join(QUERIES),
+        entity_types=ENTITY_TYPES,
+        config=GraphRAG.Config(
+            llm_service=OpenAILLMService(
+                api_key=os.getenv("OPENAI_API_KEY"),
+            ),
+            embedding_service=OpenAIEmbeddingService(
+                model="text-embedding-3-small",
+                api_key=os.getenv("OPENAI_API_KEY"),
+            ),
+        ),
+    )
+    grag.insert(text)
+    return "Document has been embedded successfully"

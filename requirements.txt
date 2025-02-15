@@ -1,0 +1,11 @@
+langchain
+langchain-openai
+langchain-core
+langchain-community
+fast-graphrag
+faiss-cpu
+python-dotenv
+PyPDF2
+django
+djangorestframework
+nest-asyncio

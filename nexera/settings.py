@@ -25,7 +25,13 @@ SECRET_KEY = 'django-insecure-xa-1e*t)ggqtu%rb0+^=vanm=6e2u6f=4cx02%w2$8_m1u+(-f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '182.188.89.227',
+    '127.0.0.1',
+    'nexeralegal.com',
+    'www.nexeralegal.com',
+
+]
 
 
 # Application definition

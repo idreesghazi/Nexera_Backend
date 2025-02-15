@@ -8,6 +8,7 @@ from nexgen.apis.serializers import ChatSerializer, ChatMessageSerializer
 from nexgen.apis.helpers import (
     generate_graph,
     get_query_results,
+    tax_report_generation,
 )
 # Create your views here.
 
@@ -63,9 +64,30 @@ class GraphGeneratorViewSet(viewsets.ViewSet):
 
 class GraphQueryViewSet(viewsets.ViewSet):
     def create(self, request):
+        chat_id = request.data.get('ChatID')
         query = request.data.get('Query')
         if not query:
             return Response({"error": "Query is required"}, status=400)
-        
+        if not chat_id:
+            chat = models.Chat.objects.create(Title = request.data.get('Message'))
+            chat_id = chat.ChatID
         results = get_query_results(query)
-        return Response(results)
+
+        if chat_id:
+            models.ChatMessage.objects.create(ChatID=models.Chat.objects.get(ChatID=chat_id), Message=query, HumanFlag=True)
+            models.ChatMessage.objects.create(ChatID=models.Chat.objects.get(ChatID=chat_id), Message=results, HumanFlag=False)
+
+
+        return Response({"results": results, chat_id: chat_id})
+    
+
+class TextDocumentGenerationViewSet(viewsets.ViewSet):
+    def create(self, request):
+        text_data = request.data
+        if not text_data:
+            return Response({"error": "Text data is required"}, status=400)
+        
+        # Assuming generate_text_document is a helper function that generates a document from text
+        document = tax_report_generation(request.data)
+        
+        return Response({"message": "Document generated successfully", "document": document})

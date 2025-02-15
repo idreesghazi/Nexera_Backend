@@ -23,7 +23,6 @@ llm = ChatOpenAI(
 embeddings = OpenAIEmbeddings(
     model= "text-embedding-3-small",
 )
-# index = faiss.IndexFlatL2(len(embeddings.embed_query("hello world")))
 
 def generate_graph():
     
@@ -253,3 +252,19 @@ def tax_report_generation(data):
         "previous_filing": data.get("previous_filing", "")
     })
     return response
+
+def generate_title(message: str) -> str:
+    system_template = """
+    Generate title for the following coversation: 
+    User: {user_message}
+    System: {system_message}
+    """
+    prompt_template = PromptTemplate(template=system_template, input_variables=["user_message", "system_message"])
+    system_message = get_query_results(message)
+
+    chain = prompt_template | llm
+    response = chain.invoke({
+        "user_message": message,
+        "system_message": system_message
+    })
+    return response.content

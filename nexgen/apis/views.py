@@ -9,10 +9,12 @@ from nexgen.apis.helpers import (
     generate_graph,
     get_query_results,
     tax_report_generation,
+    generate_title,
 )
 # Create your views here.
 
 class ChatListView(viewsets.ViewSet):
+    allow_methods = ['GET', 'POST']
     def list(self, request):
         queryset = models.Chat.objects.all()
         serializer = ChatSerializer(queryset, many=True)
@@ -26,6 +28,7 @@ class ChatListView(viewsets.ViewSet):
         return Response(serializer.errors, status=400)
 
 class ChatManagementViewSet(viewsets.ModelViewSet):
+    allow_methods = ['GET', 'POST']
     queryset = models.ChatMessage.objects.all()
     serializer_class = ChatMessageSerializer
 
@@ -33,7 +36,7 @@ class ChatManagementViewSet(viewsets.ModelViewSet):
         data = request.data
         chat = request.data.get('ChatID')
         if not chat:
-            chat = models.Chat.objects.create(Title = request.data.get('Message'))
+            chat = models.Chat.objects.create(Title = generate_title(request.data.get('Message')))
             data['ChatID'] = chat.ChatID
         else:
             chat = models.Chat.objects.get(ChatID=chat)
@@ -58,30 +61,33 @@ class ChatManagementViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
     
 class GraphGeneratorViewSet(viewsets.ViewSet):
+    allow_methods = ['GET', 'POST']
     def create(self, request):
         generate_graph()
         return Response({"message": "Graph generated successfully"})
 
 class GraphQueryViewSet(viewsets.ViewSet):
+    allow_methods = ['GET', 'POST']
     def create(self, request):
         chat_id = request.data.get('ChatID')
         query = request.data.get('Query')
         if not query:
             return Response({"error": "Query is required"}, status=400)
         if not chat_id:
-            chat = models.Chat.objects.create(Title = request.data.get('Message'))
+            chat = models.Chat.objects.create(Title = generate_title(request.data.get('Query')))
             chat_id = chat.ChatID
         results = get_query_results(query)
 
         if chat_id:
-            models.ChatMessage.objects.create(ChatID=models.Chat.objects.get(ChatID=chat_id), Message=query, HumanFlag=True)
-            models.ChatMessage.objects.create(ChatID=models.Chat.objects.get(ChatID=chat_id), Message=results, HumanFlag=False)
+            models.ChatMessage.objects.create(ChatID_id=chat_id, Message=query, HumanFlag=True)
+            models.ChatMessage.objects.create(ChatID_id=chat_id, Message=results, HumanFlag=False)
 
 
-        return Response({"results": results, chat_id: chat_id})
+        return Response({"results": results, "chat_id": chat_id})
     
 
 class TextDocumentGenerationViewSet(viewsets.ViewSet):
+    allow_methods = ['GET', 'POST']
     def create(self, request):
         text_data = request.data
         if not text_data:

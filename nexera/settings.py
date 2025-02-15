@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-xa-1e*t)ggqtu%rb0+^=vanm=6e2u6f=4cx02%w2$8_m1u+(-f
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '182.188.89.227',
+    '44.203.0.32',
     '127.0.0.1',
     'nexeralegal.com',
     'www.nexeralegal.com',
@@ -46,11 +46,19 @@ INSTALLED_APPS = [
 
     # Third party apps
     'rest_framework',
-
+    
     # My apps
     'nexgen',
     
 ]
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Basic': {
+            'type': 'basic'
+        }
+    }
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

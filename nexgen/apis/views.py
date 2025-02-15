@@ -107,7 +107,7 @@ class GraphQueryViewSet(viewsets.ViewSet):
     
 
 class TextDocumentGenerationViewSet(viewsets.ViewSet):
-
+    
     def create(self, request):
         text_data = request.data
         if not text_data:

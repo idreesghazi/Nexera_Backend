@@ -25,6 +25,12 @@ SECRET_KEY = 'django-insecure-xa-1e*t)ggqtu%rb0+^=vanm=6e2u6f=4cx02%w2$8_m1u+(-f
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React frontend
+    "http://127.0.0.1:3000",
+    "http://nexeralegal.com",
+    "http://www.nexeralegal.com",
+]
 ALLOWED_HOSTS = [
     'localhost',
     '44.203.0.32',
@@ -47,7 +53,8 @@ INSTALLED_APPS = [
 
     # Third party apps
     'rest_framework',
-    
+    'corsheaders',
+
     # My apps
     'nexgen',
     
@@ -64,6 +71,7 @@ SWAGGER_SETTINGS = {
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',

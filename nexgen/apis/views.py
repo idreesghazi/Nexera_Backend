@@ -79,7 +79,7 @@ class GraphQueryViewSet(viewsets.ViewSet):
             title, results = generate_title(message = query)
             chat = models.Chat.objects.create(Title = title)
             chat_id = chat.ChatID
-        results = get_query_results(query) if results is None else results
+        results = get_query_results(query, chat_id) if results is None else results
 
         if chat_id:
             models.ChatMessage.objects.create(ChatID_id=chat_id, Message=query, HumanFlag=True)

@@ -108,7 +108,18 @@ def generate_graph():
     #             file_content = page.extract_text() + "\n"
     #     grag.insert(file_content)
 
-def get_query_results(query: str) -> str:
+def get_conversation_history(chat_id) -> str:
+    chat_messages = models.ChatMessage.objects.filter(ChatID_id=chat_id).order_by('-ChatMessageID')[:10]
+    conversation = ""
+    for message in chat_messages:
+        conversation += f"{'User: ' if message.HumanFlag else 'System: '}{message.Message}\n"
+    return conversation
+
+def get_query_results(query: str, chat_id = None) -> str:
+
+    if chat_id:
+        conversation = get_conversation_history(chat_id)
+        query = "Chat History:\n"+conversation + "Answer the Question\nUser:" + query
 
     working_dir = "./myFile"
     DOMAIN, QUERIES, ENTITY_TYPES = models.GraphData.objects.all().values_list('DOMAIN', 'QUERIES', 'ENTITY_TYPES')[0]

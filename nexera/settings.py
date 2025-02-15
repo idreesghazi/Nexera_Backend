@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-xa-1e*t)ggqtu%rb0+^=vanm=6e2u6f=4cx02%w2$8_m1u+(-f
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    'localhost',
     '44.203.0.32',
     '127.0.0.1',
     'nexeralegal.com',

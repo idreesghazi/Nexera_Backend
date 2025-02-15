@@ -83,7 +83,7 @@ class GraphQueryViewSet(viewsets.ViewSet):
             models.ChatMessage.objects.create(ChatID_id=chat_id, Message=results, HumanFlag=False)
 
 
-        return Response({"results": results, "chat_id": chat_id})
+        return Response({"results": results.response, "chat_id": chat_id})
     
 
 class TextDocumentGenerationViewSet(viewsets.ViewSet):

@@ -128,8 +128,7 @@ def get_query_results(query: str) -> str:
         ),
     )
     res = grag.query(query, QueryParam(with_references=True))
-    print(res)
-    return res.response  
+    return res 
 
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
@@ -184,7 +183,7 @@ def tax_report_generation(data):
     Withholding Tax on Property Transactions: {property_withholding_tax}
     Withholding Tax on Banking Transactions & Cash Withdrawals: {banking_withholding_tax}
     Withholding Tax on Utility Bills & Mobile Recharges: {utility_withholding_tax}
-    5️⃣ Tax Compliance & FBR Recommendations:
+    5️ Tax Compliance & FBR Recommendations:
 
     Previous Tax Filings: {previous_filing} (Yes/No)
     Applicable Tax Slabs (2024 FBR Rates): Applied based on taxable income brackets

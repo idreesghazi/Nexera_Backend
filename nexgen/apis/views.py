@@ -17,7 +17,7 @@ from nexgen.apis.helpers import (
 # Create your views here.
 
 class ChatListView(viewsets.ViewSet):
-    allow_methods = ['GET', 'POST']
+
     def list(self, request):
         queryset = models.Chat.objects.all()
         serializer = ChatSerializer(queryset, many=True)
@@ -31,7 +31,7 @@ class ChatListView(viewsets.ViewSet):
         return Response(serializer.errors, status=400)
 
 class ChatManagementViewSet(viewsets.ModelViewSet):
-    allow_methods = ['GET', 'POST']
+
     queryset = models.ChatMessage.objects.all()
     serializer_class = ChatMessageSerializer
 
@@ -64,13 +64,13 @@ class ChatManagementViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
     
 class GraphGeneratorViewSet(viewsets.ViewSet):
-    allow_methods = ['GET', 'POST']
+
     def create(self, request):
         generate_graph()
         return Response({"message": "Graph generated successfully"})
 
 class GraphQueryViewSet(viewsets.ViewSet):
-    allow_methods = ['GET', 'POST']
+
     def create(self, request):
         chat_id = request.data.get('ChatID')
         query = request.data.get('Query')
@@ -107,7 +107,7 @@ class GraphQueryViewSet(viewsets.ViewSet):
     
 
 class TextDocumentGenerationViewSet(viewsets.ViewSet):
-    allow_methods = ['GET', 'POST']
+
     def create(self, request):
         text_data = request.data
         if not text_data:
@@ -119,7 +119,7 @@ class TextDocumentGenerationViewSet(viewsets.ViewSet):
         return Response({"message": "Document generated successfully", "document": document})
     
 class DocumentGraphGenerationViewSet(viewsets.ViewSet):
-    allow_methods = ['GET', 'POST']
+
     def create(self, request):
         file_url = request.data.get('FileURL')
         chat_id = request.data.get('ChatID')

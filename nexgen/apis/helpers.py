@@ -13,9 +13,14 @@ from fast_graphrag._llm import OpenAIEmbeddingService, OpenAILLMService
 import faiss
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
+import requests
 from langchain_community.vectorstores import FAISS
 import glob
 import PyPDF2
+import boto3
+
+s3 = boto3.client('s3', aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"), aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"))
+bucket_name = os.getenv("AWS_STORAGE_BUCKET_NAME")
 
 from openai import OpenAI
 client = OpenAI()
@@ -293,17 +298,18 @@ def generate_title(message: str) -> str:
 
 
 def get_speech_to_text(file) -> str:
-    if hasattr(file, 'read'):
-        audio_file = file.read()
-    else:
-        with open(file, "rb") as f:
-            audio_file = f.read()
-    
-    transcription = client.audio.translations.create(
-        model="whisper-1", 
-        file=audio_file
+    download_path = "downloads/audio-recording.webm"
+    os.makedirs(os.path.dirname(download_path), exist_ok=True)
+    file_key = file.split("/")[-1]
+    s3.download_file(bucket_name, file_key, download_path)
+      
+    with open(download_path, "rb") as audio_file:
+            transcription = client.audio.translations.create(
+            model="whisper-1", 
+            file=audio_file
     )
-
+        
+    
     print(transcription.text)
     return transcription.text
 

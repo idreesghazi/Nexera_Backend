@@ -9,3 +9,5 @@ PyPDF2
 django
 djangorestframework
 nest-asyncio
+boto3
+django-storages

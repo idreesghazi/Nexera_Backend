@@ -10,6 +10,7 @@ router.register(r'Graph', views.GraphGeneratorViewSet, basename='Graph')
 router.register(r'GraphChat', views.GraphQueryViewSet, basename='GraphChat')
 router.register(r'TaxReportGenerate', views.TextDocumentGenerationViewSet, basename='TaxReportGenerate')
 router.register(r'DocumentGraph', views.DocumentGraphGenerationViewSet, basename='DocumentGraph')
+
 urlpatterns = [
     path('', include(router.urls)),
 ]

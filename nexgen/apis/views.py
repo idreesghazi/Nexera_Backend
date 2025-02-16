@@ -13,6 +13,7 @@ from nexgen.apis.helpers import (
     get_speech_to_text,
     get_answer_from_pdf,
     embed_pdf_runtime,
+    insights_generator,
 )
 # Create your views here.
 
@@ -70,7 +71,6 @@ class GraphGeneratorViewSet(viewsets.ViewSet):
         return Response({"message": "Graph generated successfully"})
 
 class GraphQueryViewSet(viewsets.ViewSet):
-
     def create(self, request):
         chat_id = request.data.get('ChatID')
         query = request.data.get('Query')
@@ -130,3 +130,13 @@ class DocumentGraphGenerationViewSet(viewsets.ViewSet):
         embed_pdf_runtime(file_url,chat_id)
         
         return Response({"message": "Graph generated successfully"})
+
+import asyncio
+class LitigationSupportViewSet(viewsets.ViewSet):
+
+    def create(self, request):
+        files = request.data.get('FileURLs')
+        if not files:
+            return Response({"error": "Files are required"}, status=400)        
+        response = asyncio.run(insights_generator(files))
+        return Response({"message": response})

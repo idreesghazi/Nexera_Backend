@@ -310,7 +310,7 @@ def get_speech_to_text(file) -> str:
     )
         
     
-    print(transcription.text)
+    print("audio_text",transcription.text)
     return transcription.text
 
 def extract_text_from_pdf(file_path: str) -> str:
@@ -320,7 +320,6 @@ def extract_text_from_pdf(file_path: str) -> str:
         for page_num in range(len(reader.pages)):
             page = reader.pages[page_num]
             text += page.extract_text() + "\n"
-    print(text)
     return text
 
 
@@ -368,3 +367,55 @@ def embed_pdf_runtime(file_path: str, chat_id: int) -> str:
     )
     grag.insert(text)
     return "Document has been embedded successfully"
+
+
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain.chains.combine_documents.reduce import (
+    acollapse_docs,
+    split_list_of_docs,
+)
+from langchain_core.documents import Document
+
+from langchain_core.prompts import ChatPromptTemplate
+from langchain import hub
+from langgraph.constants import Send
+from langgraph.graph import END, START, StateGraph
+import operator
+from typing import Annotated, List, Literal, TypedDict
+
+from langchain.chains.combine_documents.reduce import (
+    acollapse_docs,
+    split_list_of_docs,
+)
+from langchain.chains.combine_documents import create_stuff_documents_chain
+map_prompt = hub.pull("rlm/map-prompt")
+
+async def insights_generator(files: List[str]):
+    docs = []
+    for file_path in glob.glob(os.path.join("downloads/lit_files", "*")):
+        if file_path.endswith('.pdf'):
+            text = extract_text_from_pdf(file_path)
+            docs.append(Document(page_content=text))
+
+    reduce_template = """
+        The following is a set of information:
+        {docs}
+        Take these and create it into a final, litigation support for lawyers
+        and tell the insights.
+    """
+    reduce_prompt = ChatPromptTemplate([("human", reduce_template)])
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=1000, chunk_overlap=0
+    )
+    split_docs = text_splitter.split_documents(docs)
+    prompt = ChatPromptTemplate.from_messages(
+        [("system", "The following is a set of information::\\n\\n{context}  Take these and create it into a final, litigation support for lawyers and tell the insights")]
+    )
+
+    chain = create_stuff_documents_chain(llm, prompt)
+
+    # Invoke chain
+    result = chain.invoke({"context": docs})
+    
+    return result

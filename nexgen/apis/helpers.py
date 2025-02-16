@@ -115,7 +115,7 @@ def get_conversation_history(chat_id) -> str:
     chat_messages = models.ChatMessage.objects.filter(ChatID_id=chat_id).order_by('-ChatMessageID')[:10]
     conversation = ""
     system_message = """
-    System: Your answer should be relevant to the user's input. Keep it concise and to the point.\n
+    System: Your answer should be relevant to the user's input. Keep it concise and to the point. And you have to answer to user's last reponse only\n
     """
     for message in chat_messages:
         conversation += f"{system_message}{'User: ' if message.HumanFlag else 'System: '}{message.Message}\n"
@@ -282,7 +282,6 @@ def generate_title(message: str) -> str:
     System: Your answer should be relevant to the user's input. Keep it concise and to the point.\n
     User:
     """
-    print(system_message+message)
     system_message = get_query_results(system_message + message)
 
     chain = prompt_template | llm
@@ -293,8 +292,13 @@ def generate_title(message: str) -> str:
     return response.content, system_message
 
 
-def get_speech_to_text(file_path: str) -> str:
-    audio_file = open(file_path, "rb")
+def get_speech_to_text(file) -> str:
+    if hasattr(file, 'read'):
+        audio_file = file.read()
+    else:
+        with open(file, "rb") as f:
+            audio_file = f.read()
+    
     transcription = client.audio.translations.create(
         model="whisper-1", 
         file=audio_file
